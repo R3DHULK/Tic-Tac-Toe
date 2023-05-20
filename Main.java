@@ -1,174 +1,248 @@
-// A simple program to demonstrate
-// Tic-Tac-Toe Game.
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
+import javax.swing.*;
 
-public class Main {
+class TicTacToeGameinSwing implements ActionListener
+{
+    JFrame frame = new JFrame();
+    JPanel t_panel = new JPanel();
+    JPanel bt_panel = new JPanel();
+    JLabel textfield = new JLabel();
+    JButton[] bton = new JButton[9];
+    int chance_flag = 0;
+    Random random = new Random();
+    boolean pl1_chance;
 
-    static String[] board;
-    static String turn;
-
-
-    // CheckWinner method will
-    // decide the combination
-    // of three box given below.
-    static String checkWinner()
+    // Creating class constructor for creating grid
+    TicTacToeGameinSwing()
     {
-        for (int a = 0; a < 8; a++) {
-            String line = null;
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 500);
+        frame.getContentPane().setBackground(new Color(250, 184, 97));
+        frame.setTitle("Tic Tac Toe Game in Swing");
+        frame.setLayout(new BorderLayout());
+        frame.setVisible(true);
 
-            switch (a) {
-                case 0:
-                    line = board[0] + board[1] + board[2];
-                    break;
-                case 1:
-                    line = board[3] + board[4] + board[5];
-                    break;
-                case 2:
-                    line = board[6] + board[7] + board[8];
-                    break;
-                case 3:
-                    line = board[0] + board[3] + board[6];
-                    break;
-                case 4:
-                    line = board[1] + board[4] + board[7];
-                    break;
-                case 5:
-                    line = board[2] + board[5] + board[8];
-                    break;
-                case 6:
-                    line = board[0] + board[4] + board[8];
-                    break;
-                case 7:
-                    line = board[2] + board[4] + board[6];
-                    break;
-            }
-            //For X winner
-            if (line.equals("XXX")) {
-                return "X";
-            }
+        textfield.setBackground(new Color(0,0,0));
+        textfield.setForeground(new Color(255,0,0));
+        textfield.setFont(new Font("Serif", Font.BOLD, 75));
+        textfield.setHorizontalAlignment(JLabel.CENTER);
+        textfield.setText("Tic Tac Toe Game in Swing");
+        textfield.setOpaque(true);
 
-            // For O winner
-            else if (line.equals("OOO")) {
-                return "O";
-            }
+        t_panel.setLayout(new BorderLayout());
+        t_panel.setBounds(0, 0, 800, 100);
+
+        bt_panel.setLayout(new GridLayout(3, 3));
+        bt_panel.setBackground(new Color(0, 0, 0));
+
+        for (int i = 0; i < 9; i++)
+        {
+            bton[i] = new JButton();
+            bt_panel.add(bton[i]);
+            bton[i].setFont(new Font("Serif", Font.BOLD, 120));
+            bton[i].setFocusable(false);
+            bton[i].addActionListener(this);
+            bton[i].setBackground(Color.cyan);
         }
 
-        for (int a = 0; a < 9; a++) {
-            if (Arrays.asList(board).contains(
-                    String.valueOf(a + 1))) {
-                break;
-            }
-            else if (a == 8) {
-                return "draw";
-            }
-        }
+        t_panel.add(textfield);
+        frame.add(t_panel, BorderLayout.NORTH);
+        frame.add(bt_panel);
 
-        // To enter the X Or O at the exact place on board.
-        System.out.println(
-                turn + "'s turn; enter a slot number to place "
-                        + turn + " in:");
-        return null;
+        startGame();
     }
 
-    // To print out the board.
-	/* |---|---|---|
-	| 1 | 2 | 3 |
-	|-----------|
-	| 4 | 5 | 6 |
-	|-----------|
-	| 7 | 8 | 9 |
-	|---|---|---|*/
-
-    static void printBoard()
+    // Creating method to start the game and decide the chance
+    public void startGame()
     {
-        System.out.println("|---|---|---|");
-        System.out.println("| " + board[0] + " | "
-                + board[1] + " | " + board[2]
-                + " |");
-        System.out.println("|-----------|");
-        System.out.println("| " + board[3] + " | "
-                + board[4] + " | " + board[5]
-                + " |");
-        System.out.println("|-----------|");
-        System.out.println("| " + board[6] + " | "
-                + board[7] + " | " + board[8]
-                + " |");
-        System.out.println("|---|---|---|");
+        try
+        {
+            textfield.setText("Loading....");
+            Thread.sleep(4000);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        int chance=random.nextInt(100);
+
+        if (chance%2 == 0)
+        {
+            pl1_chance = true;
+            textfield.setText("Player X turn");
+        }
+        else
+        {
+            pl1_chance = false;
+            textfield.setText("Player O turn");
+        }
     }
 
-    public static void main(String[] args)
+    public void gameOver(String s)
     {
-        Scanner in = new Scanner(System.in);
-        board = new String[9];
-        turn = "X";
-        String winner = null;
-
-        for (int a = 0; a < 9; a++) {
-            board[a] = String.valueOf(a + 1);
+        chance_flag = 0;
+        Object[] option={"Restart","Exit"};
+        int n=JOptionPane.showOptionDialog(frame, "Game Over\n"+s,"Game Over", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
+        if(n==0)
+        {
+            frame.dispose();
+            new TicTacToeGameinSwing();
+        }
+        else
+        {
+            frame.dispose();
         }
 
-        System.out.println("Welcome to 3x3 Tic Tac Toe.");
-        printBoard();
+    }
 
-        System.out.println(
-                "X will play first. Enter a slot number to place X in:");
+    // Creating method for checking winning conditions
+    public void matchCheck()
+    {
+        if ((bton[0].getText() == "X") && (bton[1].getText() == "X") && (bton[2].getText() == "X"))
+        {
+            xWins(0, 1, 2);
+        }
+        else if ((bton[0].getText() == "X") && (bton[4].getText() == "X") && (bton[8].getText() == "X"))
+        {
+            xWins(0, 4, 8);
+        }
+        else if ((bton[0].getText() == "X") && (bton[3].getText() == "X") && (bton[6].getText() == "X"))
+        {
+            xWins(0, 3, 6);
+        }
+        else if ((bton[1].getText() == "X") && (bton[4].getText() == "X") && (bton[7].getText() == "X"))
+        {
+            xWins(1, 4, 7);
+        }
+        else if ((bton[2].getText() == "X") && (bton[4].getText() == "X") && (bton[6].getText() == "X"))
+        {
+            xWins(2, 4, 6);
+        }
+        else if ((bton[2].getText() == "X") && (bton[5].getText() == "X") && (bton[8].getText() == "X"))
+        {
+            xWins(2, 5, 8);
+        }
+        else if ((bton[3].getText() == "X") && (bton[4].getText() == "X") && (bton[5].getText() == "X"))
+        {
+            xWins(3, 4, 5);
+        }
+        else if ((bton[6].getText() == "X") && (bton[7].getText() == "X") && (bton[8].getText() == "X"))
+        {
+            xWins(6, 7, 8);
+        }
 
-        while (winner == null) {
-            int numInput;
+        else if ((bton[0].getText() == "O") && (bton[1].getText() == "O") && (bton[2].getText() == "O"))
+        {
+            oWins(0, 1, 2);
+        }
+        else if ((bton[0].getText() == "O") && (bton[3].getText() == "O") && (bton[6].getText() == "O"))
+        {
+            oWins(0, 3, 6);
+        }
+        else if ((bton[0].getText() == "O") && (bton[4].getText() == "O") && (bton[8].getText() == "O"))
+        {
+            oWins(0, 4, 8);
+        }
+        else if ((bton[1].getText() == "O") && (bton[4].getText() == "O") && (bton[7].getText() == "O"))
+        {
+            oWins(1, 4, 7);
+        }
+        else if ((bton[2].getText() == "O") && (bton[4].getText() == "O") && (bton[6].getText() == "O"))
+        {
+            oWins(2, 4, 6);
+        }
+        else if ((bton[2].getText() == "O") && (bton[5].getText() == "O") && (bton[8].getText() == "O"))
+        {
+            oWins(2, 5, 8);
+        }
+        else if ((bton[3].getText() == "O") && (bton[4].getText() == "O") && (bton[5].getText() == "O"))
+        {
+            oWins(3, 4, 5);
+        } else if ((bton[6].getText() == "O") && (bton[7].getText() == "O") && (bton[8].getText() == "O"))
+        {
+            oWins(6, 7, 8);
+        }
+        else if(chance_flag==9)
+        {
+            textfield.setText("Game Draw!!");
+            gameOver("Game Draw!!");
+        }
+    }
 
-            // Exception handling.
-            // numInput will take input from user like from 1 to 9.
-            // If it is not in range from 1 to 9.
-            // then it will show you an error "Invalid input."
-            try {
-                numInput = in.nextInt();
-                if (!(numInput > 0 && numInput <= 9)) {
-                    System.out.println(
-                            "Invalid input; re-enter slot number:");
-                    continue;
+    // Method to print that Player X wins
+    public void xWins(int x1, int x2, int x3)
+    {
+        bton[x1].setBackground(Color.YELLOW);
+        bton[x2].setBackground(Color.YELLOW);
+        bton[x3].setBackground(Color.YELLOW);
+
+        for (int i = 0; i < 9; i++)
+        {
+            bton[i].setEnabled(false);
+        }
+        textfield.setText("Player X wins");
+        gameOver("Player X Wins");
+    }
+
+    // Method to print that Player O wins
+    public void oWins(int x1, int x2, int x3)
+    {
+        bton[x1].setBackground(Color.YELLOW);
+        bton[x2].setBackground(Color.YELLOW);
+        bton[x3].setBackground(Color.YELLOW);
+
+        for (int i = 0; i < 9; i++)
+        {
+            bton[i].setEnabled(false);
+        }
+        textfield.setText("Player O Wins");
+        gameOver("Player O Wins");
+    }
+
+    // Method for performing action after every turn
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            if (e.getSource() == bton[i])
+            {
+                if (pl1_chance)
+                {
+                    if (bton[i].getText() == "")
+                    {
+                        bton[i].setForeground(new Color(0, 188, 255));
+                        bton[i].setText("X");
+                        pl1_chance = false;
+                        textfield.setText("O turn");
+                        chance_flag++;
+                        matchCheck();
+                    }
+                }
+                else
+                {
+                    if (bton[i].getText() == "")
+                    {
+                        bton[i].setForeground(new Color(0, 255, 9));
+                        bton[i].setText("O");
+                        pl1_chance = true;
+                        textfield.setText("X turn");
+                        chance_flag++;
+                        matchCheck();
+                    }
                 }
             }
-            catch (InputMismatchException e) {
-                System.out.println(
-                        "Invalid input; re-enter slot number:");
-                continue;
-            }
-
-            // This game has two player x and O.
-            // Here is the logic to decide the turn.
-            if (board[numInput - 1].equals(
-                    String.valueOf(numInput))) {
-                board[numInput - 1] = turn;
-
-                if (turn.equals("X")) {
-                    turn = "O";
-                }
-                else {
-                    turn = "X";
-                }
-
-                printBoard();
-                winner = checkWinner();
-            }
-            else {
-                System.out.println(
-                        "Slot already taken; re-enter slot number:");
-            }
         }
+    }
+}
 
-        // If no one win or lose from both player x and O.
-        // then here is the logic to print "draw".
-        if (winner.equalsIgnoreCase("draw")) {
-            System.out.println(
-                    "It's a draw! Thanks for playing.");
-        }
-
-        // For winner -to display Congratulations! message.
-        else {
-            System.out.println(
-                    "Congratulations! " + winner
-                            + "'s have won! Thanks for playing.");
-        }
-        in.close();
+// Driver code
+public class Main
+{
+    public static void main(String[] args) throws Exception
+    {
+        new TicTacToeGameinSwing();
     }
 }
